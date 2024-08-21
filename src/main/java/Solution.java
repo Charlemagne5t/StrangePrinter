@@ -1,38 +1,32 @@
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class Solution {
+class Solution {
     public int strangePrinter(String s) {
-        char[] sArray = s.toCharArray();
-        char[] curArray = new char[s.length()];
-        HashMap<String, Integer> memo =  new HashMap<>();
-        return dfs(sArray, 0, curArray, memo);
+        int n = s.length();
+        char[] sChar = s.toCharArray();
+        int[][] dp = new int[n][n];
+        for(int[] in : dp) Arrays.fill(in, -1);
+        return Util(0, n - 1, sChar, dp);
     }
-
-    private int dfs(char[] sArray, int i, char[] curArray, HashMap<String, Integer> memo) {
-        if (Arrays.equals(sArray, curArray)) {
+    public int Util(int i, int j, char[] sChar, int[][] dp) {
+        if (i > j) {
             return 0;
         }
-        if (Arrays.equals(sArray, curArray) && i >= sArray.length) {
-            return Integer.MAX_VALUE / 4;
-        }
-        if(memo.containsKey(i + " " + Arrays.toString(curArray))){
-            return memo.get(i + " " + Arrays.toString(curArray));
-        };
 
-        int result = Integer.MAX_VALUE;
-        if (curArray[i] == sArray[i]) {
-            result = dfs(sArray, i + 1, curArray, memo);
-        }
-        for (int j = i; j < sArray.length; j++) {
-            char[] chars = Arrays.copyOf(curArray, curArray.length);
+        if(dp[i][j] != -1) return dp[i][j];
 
-            for (int k = i; k <= j; k++) {
-                chars[k] = sArray[i];
+        int firstLetter = sChar[i];
+
+        int answer = 1 + Util(i + 1, j, sChar, dp);
+        for (int k = i + 1; k <= j; k++) {
+
+            if (sChar[k] == firstLetter) {
+
+                int betterAnswer = Util(i, k - 1, sChar, dp) + Util(k + 1, j, sChar, dp);
+                answer = Math.min(answer, betterAnswer);
             }
-            result = Math.min(result, dfs(sArray, i + 1, chars, memo) + 1);
         }
-        memo.put(i + " " + Arrays.toString(curArray), result);
-        return result;
+        return dp[i][j] = answer;
     }
 }
